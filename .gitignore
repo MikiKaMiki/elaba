@@ -1,0 +1,7 @@
+﻿ABAValidatorAPI/obj
+*.user
+*.vsidx
+*.suo
+ABAValidatorAPI/bin
+ABAValidatorAPI/wwwroot/lib/bootstrap
+.vs
