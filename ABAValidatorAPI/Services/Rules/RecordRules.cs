@@ -7,15 +7,15 @@ namespace ABAValidatorAPI.Services.Rules
         [GeneratedRegex(@"^.{120}$")]
         private static partial Regex Line120();
 
-        public KeyValuePair<Regex, string> DiscrptiveChar1 
+        public KeyValuePair<Regex, string> DiscrptiveChar1
         {
-            get => new (DescriptiveChar1(), "Char 1, Size 1, Record type 0, Must be '0'"); 
+            get => new(DescriptiveChar1(), "Char 1, Size 1, Record type 0, Must be '0'");
         }
 
         public Dictionary<Regex, string> DescriptiveRules { get; } = new()
         {
             {Line120()               , "An ABA record is exactly 120 characters long (excluding new line characters)" },
-            
+
             {DescriptiveChar1()      , "Char 1, Size 1, Record type 0, Must be '0'" },
             {DescriptiveChar2_18()   , "Char 2-18, Size 17, Blank, Must be filled" },
             {DescriptiveChar19_20()  , "Char 19-20, Size 2, Reel Sequence Number, Must be numeric commencing at 01. Right justified. Zero filled." },
@@ -111,10 +111,25 @@ Where account number exceeds nine characters, edit out hyphens. Right justified,
                         return TotalRules;
                     }
                 default:
-                    { 
-                        throw new ArgumentOutOfRangeException(); 
+                    {
+                        return KnownRecordRules;
                     }
             }
         }
+
+        public Dictionary<Regex, string> KnownRecordRules { get; } = new()
+        {
+            {Line120()     , @"An ABA record is exactly 120 characters long (excluding new line characters)" },
+
+            {KnownChar1()  , @"Char 1, Size 1, Record type, Must be '0' or '1' or '7'" },
+            //todo: complete all rules
+            //todo: split compex rules
+        };
+
+
+        [GeneratedRegex(@"^[017].*$")]
+        private static partial Regex KnownChar1();
+
     }
+
 }
