@@ -34,6 +34,10 @@ public class AbaController : ControllerBase
     [HttpPost("validate-stream")]
     public async Task ValidateAbaStream()
     {
+        _logger.LogInformation(
+                    "Validating file {fileName}",
+                    Request.Headers["X-File-Name"].ToString());
+
         using var reader = new StreamReader(Request.Body);
 
         await WriteResponseAsync(reader);
