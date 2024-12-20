@@ -70,11 +70,15 @@ function createButton(parent, label, handler) {
 
 async function validateAbaStreamAsync() {
     const rawData = await readFile(path);
+    const correlationId = generateCorrelationId();
+    console.log("Generated Correlation ID:", correlationId);
 
     let response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/octet-stream",
+            "X-File-Name": path,
+            "X-Correlation-ID": correlationId,
         },
         body: rawData
     });
@@ -209,4 +213,12 @@ async function readFile(fileUrl) {
         console.error("Error reading the file:", error);
         throw error; // Re-throw the error so the caller can handle it
     }
+}
+
+function generateCorrelationId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
