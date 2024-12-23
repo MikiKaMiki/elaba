@@ -1,5 +1,6 @@
 ﻿using ABAValidatorAPI.Services.Rules;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ABAValidatorAPI.Services
 {
@@ -23,25 +24,39 @@ namespace ABAValidatorAPI.Services
             {
                 lineNumber++;
 
-                var errors = new List<string>();
 
-                if(!CollectErrors(line, errors, rules: _ruleService.LineLength).Any())
-                {
-                    CollectErrors(line, errors, rules: _ruleService.GetRules(recordType: line[0]));
-                }
+                var task = Task.Factory.StartNew<object>(
+                    state =>
+                    {
+                        Thread.Sleep(5000);
 
-                var validationResult = new
-                {
-                    LineNumber = lineNumber,
-                    LineContent = line,
-                    IsValid = errors.Count == 0,
-                    ErrorMessages = errors.ToArray()
-                };
+                        var data = ((string line, int lineNumber, RecordRules rules)) state!;
+                        return AnalizeLine(data.line, data.lineNumber, data.rules);
+                    }, 
+                    (line, lineNumber, _ruleService));
 
-                await Task.Delay(1000);
-
-                yield return validationResult;
+                yield return task.Result;
             }
+        }
+
+        public static object AnalizeLine(string line, int lineNumber, RecordRules rulesService)
+        {
+            var errors = new List<string>();
+
+            if (!CollectErrors(line, errors, rules: rulesService.LineLength).Any())
+            {
+                CollectErrors(line, errors, rules: rulesService.GetRules(recordType: line[0]));
+            }
+
+            var validationResult = new
+            {
+                LineNumber = lineNumber,
+                LineContent = line,
+                IsValid = errors.Count == 0,
+                ErrorMessages = errors.ToArray()
+            };
+
+            return validationResult;
         }
 
 
