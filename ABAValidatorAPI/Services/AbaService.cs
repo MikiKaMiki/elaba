@@ -1,4 +1,5 @@
 ﻿using ABAValidatorAPI.Services.Rules;
+using System.Text.RegularExpressions;
 
 namespace ABAValidatorAPI.Services
 {
@@ -24,12 +25,9 @@ namespace ABAValidatorAPI.Services
 
                 var errors = new List<string>();
 
-                foreach (var rule in _ruleService.GetRules(recordType: line[0]))
+                if(!CollectErrors(line, errors, rules: _ruleService.LineLength).Any())
                 {
-                    if (!rule.Key.IsMatch(line))
-                    {
-                        errors.Add(rule.Value);
-                    }
+                    CollectErrors(line, errors, rules: _ruleService.GetRules(recordType: line[0]));
                 }
 
                 var validationResult = new
@@ -40,10 +38,24 @@ namespace ABAValidatorAPI.Services
                     ErrorMessages = errors.ToArray()
                 };
 
-                //await Task.Delay(1000);
+                await Task.Delay(1000);
 
                 yield return validationResult;
             }
+        }
+
+
+        private static List<string> CollectErrors(string line, List<string> errors, Dictionary<Regex, string> rules)
+        {
+            foreach (var rule in rules)
+            {
+                if (!rule.Key.IsMatch(line))
+                {
+                    errors.Add(rule.Value);
+                }
+            }
+
+            return errors;
         }
     }
 }
