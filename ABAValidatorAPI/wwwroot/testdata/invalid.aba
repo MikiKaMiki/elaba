@@ -1,5 +1,6 @@
 0                 01TEST BANK      PAYROLL          000000000 123456 01                                                 
 1TEST BANK BSB   123-456789012345  000000000Salary Payment      0000010000N                                             
-1SUPPLIER BSB    987-654321098765  000000000Invoice Payment     0000020000N           
-2SUPPLIER BS    987-654321098765  000000000Invoice Payment     0000020000N           
+2SUPPLIER BSB    987-654321098765  000000000Invoice Payment     0000020000N           
+3SUPPLIER BS    987-654321098765  000000000Invoice Payment     0000020000N           
+4SUPPLIER BS    987-654321098765  000000000Invoice Payment     0000020000N           
 7999-999            0000000000000000020000000000010000                                                                  
