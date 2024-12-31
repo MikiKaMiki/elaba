@@ -51,8 +51,6 @@ async function validateAbaFileAsync2() {
                     displayData("The ABA file is invalid. See details below:");
                 }
 
-                debugger;
-
                 // Process and display each record validation result
                 for (const record of responseData.recordValidationResults) {
                     const lineText = `Line ${record.lineNumber}: Valid=${record.isValid}`;
