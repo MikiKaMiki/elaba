@@ -2,10 +2,10 @@ using ABAValidatorAPI.Models;
 using ABAValidatorAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ABAValidatorAPI.Controllers.V2;
+namespace ABAValidatorAPI.Controllers.V3;
 
 [ApiController]
-[Route("/api/v2/[controller]")]
+[Route("/api/v3/[controller]")]
 public class AbaController : ControllerBase
 {
     #region fields
@@ -29,23 +29,19 @@ public class AbaController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        return Ok("Hello, I am ABA Validator v2");
+        return Ok("Hello, I am ABA Validator v3");
     }
     
     [HttpPost("validate-file")]
-    //[ProducesResponseType(StatusCodes.Status200OK)]
-    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-    //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ValidateAbaFile(AbaValidationRequest request)
     {
         _logger.LogInformation("Validating file {fileName}", request.FileName);
 
         try
         {
-            var fileConent = Convert.FromBase64String(request.Base64Content!);
+            var fileContent = Convert.FromBase64String(request.Base64Content!);
 
-            AbaValidationResponse result = await _abaService
-                .ValidateAbaFileAsync(fileConent);
+            var result = await _abaService.ValidateFileAsync(fileContent);
 
             return Ok(result);
         }
@@ -53,12 +49,11 @@ public class AbaController : ControllerBase
         {
             _logger
                 .LogError(
-                    "Internal server error. Exception: {ex}. Exception Message: {message}", 
-                    ex, 
-                    ex.Message);
+                    "Internal server error. Exception Message: {message}. Exception Message: {ex}", 
+                    ex.Message,
+                    ex);
 
-
-            return StatusCode(500, "Internal server error");
+            throw;
         }
     }
 }

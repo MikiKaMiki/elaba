@@ -1,4 +1,6 @@
-﻿using ABAValidatorAPI.Services.Rules;
+﻿using ABAValidatorAPI.Engine;
+using ABAValidatorAPI.Models;
+using ABAValidatorAPI.Services.Rules;
 
 namespace ABAValidatorAPI.Services
 {
@@ -12,6 +14,7 @@ namespace ABAValidatorAPI.Services
             _ruleService = ruleService;
         }
 
+        [Obsolete]
         public async IAsyncEnumerable<object> ValidateAbaStreamAsync(StreamReader r)
         {
             var reader = r;
@@ -44,6 +47,59 @@ namespace ABAValidatorAPI.Services
 
                 yield return validationResult;
             }
+        }
+
+        [Obsolete]
+        public async Task<AbaValidationResponse> ValidateAbaFileAsync(byte[] fileContent)
+        {
+            var result = new AbaValidationResponse();
+
+            using var memoryStream = new MemoryStream(fileContent);
+            using var reader = new StreamReader(memoryStream);
+
+            int lineNumber = 0;
+            string? line;
+
+            while ((line = await reader.ReadLineAsync()) != null)
+            {
+                var recordResult = new RecordValidationResponse();
+
+                foreach (var rule in _ruleService.GetRules(recordType: line[0]))
+                {
+                    if (!rule.Key.IsMatch(line))
+                    {
+                        recordResult.Errors.Add(rule.Value);
+                    }
+                }
+
+                recordResult.LineNumber = ++lineNumber;
+                //recordResult.Record = line;
+                recordResult.IsValid = recordResult.Errors.Count == 0;
+
+                if (!recordResult.IsValid)
+                {
+                    result.RecordValidationResults.Add(recordResult);
+                }
+            }
+
+            if (result.RecordValidationResults.Count == 0)
+            {
+                result.IsValid = true;
+            }
+
+            return result;
+        }
+
+
+        public async Task<AbaValidationResponse> ValidateFileAsync(byte[] fileContent)
+        {
+            var engine = new AbaValidatorEngine(fileContent);
+
+            await engine.Validate();
+
+            var result = engine.ProduceValidationResult();
+
+            return result.ToResponse();
         }
     }
 }

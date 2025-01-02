@@ -1,6 +1,6 @@
 ﻿const path2 = '/testdata/invalid.aba';
 //const path2 = '/testdata/valid.aba';
-const urlv2 = '/api/v2/aba/validate-file';
+const urlv3 = '/api/v3/aba/validate-file';
 
 window
     .addEventListener(
@@ -13,11 +13,11 @@ window
             createButton(
                 controlDiv,
                 "Validate file Async",
-                validateAbaFileAsync);
+                validateAbaFileAsync2);
         });
 
 
-async function validateAbaFileAsync() {
+async function validateAbaFileAsync2() {
 
     const rawData = await readFile(path2);
     const correlationId = generateCorrelationId();
@@ -28,7 +28,7 @@ async function validateAbaFileAsync() {
     };
 
     try {
-        const response = await fetch(urlv2, {
+        const response = await fetch(urlv3, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -51,6 +51,8 @@ async function validateAbaFileAsync() {
                     displayData("The ABA file is invalid. See details below:");
                 }
 
+                debugger;
+
                 // Process and display each record validation result
                 for (const record of responseData.recordValidationResults) {
                     const lineText = `Line ${record.lineNumber}: Valid=${record.isValid}`;
@@ -58,6 +60,16 @@ async function validateAbaFileAsync() {
 
                     if (record.errors && record.errors.length > 0) {
                         appendListToDisplay(record.errors);
+                    }
+
+                    if (record.fieldErrors && record.fieldErrors.length > 0) {
+
+                        for (const field of record.fieldErrors) {
+                            const fLineText = `Field : Valid=${field.isValid}`;
+                            appendLineToDisplay(fLineText);
+
+                            appendListToDisplay(field.errors)
+                        }
                     }
                 }
             } catch (error) {
@@ -73,6 +85,3 @@ async function validateAbaFileAsync() {
         console.error("Error during request:", error);
     }
 }
-
-// Example usage
-//validateAbaStream();
