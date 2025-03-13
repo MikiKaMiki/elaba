@@ -2,6 +2,7 @@ using ABAValidatorAPI.Middleware;
 using ABAValidatorAPI.Services;
 using ABAValidatorAPI.Services.Rules;
 using Microsoft.AspNetCore.StaticFiles;
+using RulesEngine.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
