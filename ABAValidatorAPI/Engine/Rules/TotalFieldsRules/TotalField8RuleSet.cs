@@ -2,6 +2,9 @@
 
 namespace ABAValidatorAPI.Engine.Rules
 {
+    /// <summary>
+    /// Set of rules to vlidate Total record Field 8 (Count of Detail Records).
+    /// </summary>
     public partial class TotalField8RuleSet : IFieldRuleSet
     {
         private IList<IFieldRule> _rules;
@@ -10,13 +13,14 @@ namespace ABAValidatorAPI.Engine.Rules
 
         public TotalField8RuleSet(AbaValidationContext context)
         {
+            _context = context;
+
             _rules = [
                 new TotalField8Rule1(
-                    new TotalField8Rule2(context)
+                    new TotalField8Rule2(_context)
                 ),
             ];
 
-            _context = context;
         }
 
         public FieldValidationResutl ValidateField(string line)
@@ -76,7 +80,7 @@ namespace ABAValidatorAPI.Engine.Rules
         internal partial class TotalField8Rule2 : IFieldRule
         {
             public string ErrorMessage =>
-                "Must equal accumulated number of Record Type 1 items on the file.";
+                "Must equal accumulated number of Record Type 1 items in the file.";
 
             public bool IsValid(string line)
             {
